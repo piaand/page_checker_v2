@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
@@ -24,32 +25,29 @@ import org.springframework.stereotype.Component;
  * 
  * Static block runs ones and calls LogConfiguration file that reads the
  * configuration from logging.properties.
- * 
- * In any errors when reading log file or log configurations, systems exits.
  */
 
 @Component
 public class PageCheck {
     
    private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
+   private static final String logFileName = "./pagecheck.log";
 
    static{
         LogConfiguration config = new LogConfiguration();
-        try {
-            Handler consoleHandler = new ConsoleHandler();
-            Handler fileHandler  = new FileHandler("./pagecheck.log");
-            logger.addHandler(consoleHandler);
-            logger.addHandler(fileHandler);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error in loading the log file",e);
-            System.exit(1);
-        }
+        config.setLogFileName(logFileName);
+        config.setLogHandlers();
     }
-
+    
+    @Autowired
+    PageReader reader;
+    
     @Scheduled(cron = "${cron.expression}", zone = "Europe/Helsinki")
     public void runPageCheck() {
-        PageReader check = new PageReader();
-        check.reportCurrentTime();
+        ArrayList<Page> pages = reader.readConfigFile();
+        System.out.print(pages.size());
+        //return the list urls and rules
+        //validate rules, measure time
     }
 
     public static void printInstructions() {
