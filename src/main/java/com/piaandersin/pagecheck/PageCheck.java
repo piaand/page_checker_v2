@@ -4,29 +4,52 @@
  * and open the template in the editor.
  */
 package com.piaandersin.pagecheck;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.springframework.scheduling.support.CronSequenceGenerator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.FileHandler;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+
 /**
- *
- * @author piaandersin
+ * Class that operates the runPageCheck function repeatedly
+ * according to the cron configuration in enviromental variables.
+ * 
+ * Static block runs ones and calls LogConfiguration file that reads the
+ * configuration from logging.properties.
+ * 
+ * In any errors when reading log file or log configurations, systems exits.
  */
 
 @Component
 public class PageCheck {
     
-    private static final Logger log = LoggerFactory.getLogger(PageCheck.class);
+   private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+   static{
+        LogConfiguration config = new LogConfiguration();
+        try {
+            Handler consoleHandler = new ConsoleHandler();
+            Handler fileHandler  = new FileHandler("./pagecheck.log");
+            logger.addHandler(consoleHandler);
+            logger.addHandler(fileHandler);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error in loading the log file",e);
+            System.exit(1);
+        }
+    }
 
     @Scheduled(cron = "${cron.expression}", zone = "Europe/Helsinki")
-    public void reportCurrentTime() {
-            log.info("The time is now {}", dateFormat.format(new Date()));
+    public void runPageCheck() {
+        PageReader check = new PageReader();
+        check.reportCurrentTime();
     }
 
     public static void printInstructions() {
