@@ -39,7 +39,7 @@ public class PageReader {
     @Value( "${pagecheck.configuration}" )
     private String configFileName;
     
-    private BufferedReader connectToConfigfile(String fileName){
+    public BufferedReader connectToConfigfile(String fileName){
         try {
             System.out.println(fileName);
             File file = new File(fileName);

@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.TestPropertySource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.io.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -22,9 +25,21 @@ class PagecheckApplicationTests {
     
     private static final LogManager LOGMANAGER = LogManager.getLogManager();   
     private static final Logger LOGGER = Logger.getLogger(PageCheck.class.getName());
+    private static final String logFileName = "./testcheck.log";
+    private static final File logFile = new File(logFileName);
     
         @Autowired
         LogConfiguration config;
+        
+        @Autowired
+        PageReader reader;
+        
+        @BeforeAll
+        static void init() {
+            if (logFile.exists()) {
+                logFile.delete();
+            }   
+        }
         
         @BeforeEach
         void configure_log() {
@@ -32,9 +47,15 @@ class PagecheckApplicationTests {
         }
         
 	@Test
-	void contextLoads() {
-            LOGGER.fine("Writing to testfile.");
-            assertTrue(true);
+	void testCreateLogFile() {
+            boolean exists = logFile.exists();
+            assertTrue(exists);
+        }
+        
+        @Test
+        void emptyPageCheckFile() {
+            BufferedReader read = reader.connectToConfigfile("./notAFile");
+            assertNull(read); 
         }
 
 }
