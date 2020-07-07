@@ -13,29 +13,36 @@ import java.util.*;
 import java.io.*;
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-//@Data @NoArgsConstructor @AllArgsConstructor
+@Component
+@Data @NoArgsConstructor @AllArgsConstructor
 public class Page {
-	String url;
-        //ArrayList<Rule> rules;
+    private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
     
-    public Page(String url) {
-	this.url = url;
-        //this.rules = new ArrayList<Rule>();
+    String url;
+    ArrayList<Rule> rules = new ArrayList<Rule>();
+    
+    @Autowired
+    Timer timer;
+    
+    public void timePerformance(Long start_nano, Long stop_nano) {
+        try {
+            Long seconds = timer.countDurationSeconds(start_nano, stop_nano);
+            timer.logPerformanceTime(seconds);
+        } catch (RuntimeException exception) {
+            logger.log(Level.WARNING,"Measuring time for request performance met error." );
+        }
     }
     
-    public String getUrl() {
-        return (this.url);
-    }
-    /*
-    public ArrayList<Rule> getRules() {
-        return (this.rules);
-    }
     
-    public void setConnection(HttpURLConnection con, Log log) throws IOException {
+    public void setConnection(HttpURLConnection con) throws IOException {
         try {
             con.setRequestMethod("GET");
             con.setRequestProperty("Content-Type", "plain/text");
@@ -47,7 +54,7 @@ public class Page {
         }
     }
     
-    public String readResponse(HttpURLConnection con, Log log) throws IOException {
+    public String readResponse(HttpURLConnection con) throws IOException {
         try {
             BufferedReader reader = new BufferedReader(
             new InputStreamReader(con.getInputStream()));
@@ -65,56 +72,65 @@ public class Page {
         }
     }
     
-    public String doRequests(Log log) throws Exception {
+    public String doRequest(URL ulr_address) throws Exception {
         try {
-            URL url = new URL(getUrl());
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            setConnection(con, log);
+            String content = null;
+            HttpURLConnection con = (HttpURLConnection) ulr_address.openConnection();
+            setConnection(con);
             int status = con.getResponseCode();
             
             if (status > 299) {
-                handleStatusNotOK(status, log);
-                return (null);
+                logger.warning("URL " + this.url + " returned not success status code " + status);
             } else {
-                String content = readResponse(con, log);
-                con.disconnect();
-                return (content);
+                content = readResponse(con);
             }
+            con.disconnect();
+            return (content);
         } catch (Exception e){
             String errorName = e.getClass().getSimpleName();
-            log.writeToLog(
+            logger.log(Level.WARNING,
                     "Error: making request failed with url " + getUrl() + " due to " + errorName);
             e.printStackTrace();
             return (null);
         } 
     }
     
-    public void handleStatusNotOK(int status, Log log) throws Exception {
+    public void checkRules(String content) throws Exception {
         try {
-            log.writeToLog(
-            "Request response was not from Success family. Status code: " + status);
+            ArrayList<Rule> listRules = getRules();
+            
+            if (listRules.size() == 0) {
+                logger.info(
+                    "No rules have been set to this URL " + getUrl());
+            } else {
+                boolean passed = true; 
+                for (Rule rule : listRules) {
+                //check rule category
+                //check category requirements
+                //passed = false if failed a test
+                }
+                if (passed) {
+                    logger.info(
+                        "All requirements passed with url " + getUrl());
+                }
+            }
         } catch (Exception e) {
             throw e;
         }
     }
     
-    public void checkRules(String content, Log log) throws Exception {
+    public void performRequest() {
         try {
-            ArrayList<Rule> listRules = getRules();
-            boolean passed = true; 
-
-            for (Rule rule : listRules) {
-                //check rule category
-                //check category requirements
-                //passed = false if failed a test
-            }
-
-            if (passed) {
-                log.writeToLog(
-                    "All requirements passed with url " + getUrl());
-            }
+            timer.setStart(System.nanoTime());
+            URL url_address = new URL(this.getUrl());
+            String response_content = this.doRequest(url_address);
+            this.checkRules(response_content);
+            timer.setStop(System.nanoTime());
+            timePerformance(timer.getStart(), timer.getStop());
         } catch (Exception e) {
-            throw e;
+            System.out.println("Caught exception in perform request");
+            System.out.println(e);
         }
-    }*/
+    }
+    
 }

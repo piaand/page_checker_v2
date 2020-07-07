@@ -33,24 +33,23 @@ public class PageCheck {
    private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
  
     @Autowired
+    LogConfiguration config;
+   
+    @Autowired
     PageReader reader;
     
     @Autowired
-    LogConfiguration config;
+    Page request;
     
     @Scheduled(cron = "${cron.expression}", zone = "Europe/Helsinki")
     public void runPageCheck() {
         config.setConfig();
         ArrayList<Page> pages = reader.readConfigFile();
-        System.out.print(pages.size());
-        Page sample = pages.get(pages.size() - 1);
-        System.out.print(sample.url);
-        //return the list urls and rules
-        //validate rules, measure time
+        for (Page page : pages) {
+            page.performRequest();
+        }
+        logger.info("Ended the requirement checking.");
     }
 
-    public static void printInstructions() {
-            System.out.println("Start program by giving it only one argument. That argument represents the amount of hours the program should be repeated. Amount can be minimun of 1.");
-    }
 }
 

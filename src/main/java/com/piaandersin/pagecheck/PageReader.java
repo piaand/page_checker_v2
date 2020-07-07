@@ -28,14 +28,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- *
- * @author piaandersin
+ * Class extracts the url addresses and rules from pagecheck configuration file
+ * (path of file in application properties).
+ * 
+ * Whole configuration file is read first before running the checks and comparing
+ * them to requirements. In case the address is not a valid URL address, row is skipped
+ * and a warning is logged to the file.
  */
 
 @Component
 @Data @NoArgsConstructor @AllArgsConstructor
 public class PageReader {
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
     
     @Value( "${pagecheck.configuration}" )
@@ -69,7 +72,8 @@ public class PageReader {
     public Page extractRequest(String line, int line_nb) {
         try {
             String url = extractURL(line);
-            Page request = new Page(url);
+            Page request = new Page();
+            request.setUrl(url);
             return (request);
         } catch (RuntimeException expection) {
              logger.log(Level.WARNING,
@@ -113,10 +117,12 @@ public class PageReader {
         }
     }
     
+    /*
+    //Below is for development testing
     public void reportCurrentTime() {
             String dateString = dateFormat.format(new Date());
             logger.info("The time is now " + dateString);         
-    }
+    }*/
     
     public ArrayList<Page> readConfigFile() {
         try {
