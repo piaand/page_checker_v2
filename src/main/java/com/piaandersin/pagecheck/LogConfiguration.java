@@ -1,6 +1,7 @@
 package com.piaandersin.pagecheck;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -27,7 +28,8 @@ public class LogConfiguration {
     
     static{
         try {
-            LOGMANAGER.readConfiguration(new FileInputStream("./src/main/resources/logging.properties"));
+            InputStream configFile = LogConfiguration.class.getResourceAsStream("logging.properties");
+            LOGMANAGER.getLogManager().readConfiguration(configFile);
         } catch (IOException exception) {
             LOGGER.log(Level.SEVERE, "Error in loading configuration",exception);
             System.exit(1);
