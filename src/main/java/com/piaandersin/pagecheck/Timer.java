@@ -24,8 +24,8 @@ import org.springframework.stereotype.Component;
 public class Timer {
     private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
     
-    private Long start;
-    private Long stop;
+    private Long start = 0L;
+    private Long stop = 0L;
     
     public void logPerformanceTime(Long seconds) {
         logger.info("It took " + seconds + " seconds to perform the request.");

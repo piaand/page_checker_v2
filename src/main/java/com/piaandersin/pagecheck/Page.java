@@ -29,10 +29,7 @@ public class Page {
     String url;
     ArrayList<Rule> rules = new ArrayList<Rule>();
     
-    @Autowired
-    Timer timer;
-    
-    public void timePerformance(Long start_nano, Long stop_nano) {
+    public void timePerformance(Timer timer, Long start_nano, Long stop_nano) {
         try {
             Long seconds = timer.countDurationSeconds(start_nano, stop_nano);
             timer.logPerformanceTime(seconds);
@@ -40,7 +37,6 @@ public class Page {
             logger.log(Level.WARNING,"Measuring time for request performance met error." );
         }
     }
-    
     
     public void setConnection(HttpURLConnection con) throws IOException {
         try {
@@ -54,10 +50,9 @@ public class Page {
         }
     }
     
-    public String readResponse(HttpURLConnection con) throws IOException {
+    public String readResponse(HttpURLConnection con) {
         try {
-            BufferedReader reader = new BufferedReader(
-            new InputStreamReader(con.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuffer content = new StringBuffer();
             while ((inputLine = reader.readLine()) != null) {
@@ -68,11 +63,12 @@ public class Page {
             return (result);
         } catch (IOException e) {
             con.disconnect();
-            throw e;
+            logger.warning("Error: couldn't read the content from " + this.url);
+            return (null);
         }
     }
     
-    public String doRequest(URL ulr_address) throws Exception {
+    public String doRequest(URL ulr_address) {
         try {
             String content = null;
             HttpURLConnection con = (HttpURLConnection) ulr_address.openConnection();
@@ -97,9 +93,9 @@ public class Page {
     
     public void checkRules(String content) throws Exception {
         try {
-            ArrayList<Rule> listRules = getRules();
+            ArrayList<Rule> listRules = this.getRules();
             
-            if (listRules.size() == 0) {
+            if (listRules.isEmpty()) {
                 logger.info(
                     "No rules have been set to this URL " + getUrl());
             } else {
@@ -121,12 +117,18 @@ public class Page {
     
     public void performRequest() {
         try {
-            timer.setStart(System.nanoTime());
+            Timer timer = new Timer();
+            Long start = System.nanoTime();
+            timer.setStart(start);
             URL url_address = new URL(this.getUrl());
             String response_content = this.doRequest(url_address);
-            this.checkRules(response_content);
+            if (response_content == null) {
+                //move on
+            } else {
+                this.checkRules(response_content);
+            }
             timer.setStop(System.nanoTime());
-            timePerformance(timer.getStart(), timer.getStop());
+            timePerformance(timer, timer.getStart(), timer.getStop());
         } catch (Exception e) {
             System.out.println("Caught exception in perform request");
             System.out.println(e);
