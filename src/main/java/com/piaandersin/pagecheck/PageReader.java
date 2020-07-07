@@ -38,8 +38,6 @@ public class PageReader {
     
     @Value( "${pagecheck.configuration}" )
     private String configFileName;
-            //"./config_request.txt";
-            //env.getProperty("pagecheck.configuration");
     
     private BufferedReader connectToConfigfile(String fileName){
         try {

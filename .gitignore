@@ -31,3 +31,4 @@ build/
 .vscode/
 pagecheck.log
 config_request.txt
+testcheck.log
