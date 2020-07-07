@@ -13,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,76 +40,78 @@ public class PageReader {
     
     @Value( "${pagecheck.configuration}" )
     private String configFileName;
+    private ArrayList<Page> listPages = new ArrayList<Page>();
+    
+    public boolean isValidURL(String url) throws MalformedURLException, URISyntaxException
+    {
+        new URL(url).toURI(); 
+        return true; 
+    }
+    
+    public String extractURL(String line) {
+        char delimiter = ';';
+        String url;
+        
+        try {
+            int index = line.indexOf(delimiter);
+            if (index != -1) {
+                url = line.substring(0, index);
+            } else {
+                url = line;
+            }
+            isValidURL(url);
+            return (url);
+        } catch (MalformedURLException|URISyntaxException exception) {
+            throw new java.lang.RuntimeException("Error: line has no valid URL address.");
+        }
+    }
+    
+    public Page extractRequest(String line, int line_nb) {
+        try {
+            String url = extractURL(line);
+            Page request = new Page(url);
+            return (request);
+        } catch (RuntimeException expection) {
+             logger.log(Level.WARNING,
+                    "Exception met when reading address from page check"
+                            + " configuration file. Line nb " + line_nb + " skipped.");
+            return (null);
+        }
+     }
+    
+    private void addToListPages(String line, int line_nb) {
+    
+        Page request = extractRequest(line, line_nb);
+        if (request != null) {
+            listPages.add(request);
+        }
+    }
+    
+    private void iterateConfigFile(BufferedReader readPages) {
+        try {
+            String line;
+            int i = 0;
+            while((line = readPages.readLine()) != null) {
+                addToListPages(line, i);             
+                i++;
+            }
+        } catch (IOException exception) {
+            logger.log(Level.SEVERE, "Exception met when reading page check config file", exception);
+        } 
+    }
     
     public BufferedReader connectToConfigfile(String fileName){
         try {
-            System.out.println(fileName);
             File file = new File(fileName);
             FileReader fileReader = new FileReader(file);
             BufferedReader buff = new BufferedReader(fileReader);
             logger.info("Started reading from the file: " + fileName);
             return(buff);
         } catch (FileNotFoundException | NullPointerException exception) {
-             logger.log(Level.SEVERE, "Configuration file error in loading page checker configuration",exception);
-             return (null);
+            logger.log(Level.SEVERE, "Configuration file error in loading page checker configuration",exception);
+            return (null);
         }
     }
-    
-    /*private ArrayList<Page> iterateConfigFile(BufferedReader page) {
-        try {
-            String line;
-            int i;
-            
-            ArrayList<Page> listPages = new ArrayList<Page>();
-            i = 0;
-            while((line = bufferedReader.readLine()) != null) {
-                try {
-                    RequestHTTP request = extractRequest(line);
-                    listRequests.add(request);
-                } catch(Exception e) {
-                    log.writeToLog(
-                        "Error extracting requests at line " + i);
-                }                
-                i++;
-            }
-            // close files
-            bufferedReader.close();
-        } catch (IOException exception) {
-            
-        }
-    }
-    
-    public RequestHTTP extractRequest(String line) {
-        String url = extractURL(line);
-        if (isValidURL(url)) {
-            RequestHTTP request = new RequestHTTP(url);
-            return (request);
-        } else {
-            throw new java.lang.RuntimeException("Error: line has no valid URL address.");
-        }
-    }
-    
-    public String extractURL(String line) {
-        char delimiter = ';';
-        
-        int index = line.indexOf(delimiter);
-        if (index == -1) {
-            return (line);
-        }
-        String url = line.substring(0, index);
-        return (url);
-    }
-    
-    public boolean isValidURL(String url) 
-    { 
-        try { 
-            new URL(url).toURI(); 
-            return true; 
-        } 
-        catch (Exception e) { 
-            return false; 
-        } 
-    }*/
     
     public void reportCurrentTime() {
             String dateString = dateFormat.format(new Date());
@@ -115,14 +119,19 @@ public class PageReader {
     }
     
     public ArrayList<Page> readConfigFile() {
-        String fileName = this.getConfigFileName();
-        BufferedReader pageCheckContent = connectToConfigfile(fileName);
-        if(pageCheckContent == null) {
-            return (new ArrayList<Page>());
-        } else {
-          //ArrayList<Page> list = iterateConfigFile(pageCheckContent);
-          ArrayList<Page> list = new ArrayList<Page>();
-          return (list);
+        try {
+            String fileName = this.getConfigFileName();
+            BufferedReader pageCheckContent = connectToConfigfile(fileName);
+            if(pageCheckContent == null) {
+                return (listPages);
+            } else {
+                iterateConfigFile(pageCheckContent);
+                pageCheckContent.close();
+            }
+        } catch (IOException exception){
+            logger.log(Level.SEVERE, "Error reading paeg check configuration file",exception);
+        } finally {
+            return (listPages);
         }
     }
 }

@@ -43,6 +43,8 @@ public class PageCheck {
         config.setConfig();
         ArrayList<Page> pages = reader.readConfigFile();
         System.out.print(pages.size());
+        Page sample = pages.get(pages.size() - 1);
+        System.out.print(sample.url);
         //return the list urls and rules
         //validate rules, measure time
     }
