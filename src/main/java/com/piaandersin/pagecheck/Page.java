@@ -17,24 +17,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-@Data @NoArgsConstructor @AllArgsConstructor
+//@Data @NoArgsConstructor @AllArgsConstructor
 public class Page {
 	String url;
-        ArrayList<Rule> rules;
+        //ArrayList<Rule> rules;
     
     public Page(String url) {
 	this.url = url;
-        this.rules = new ArrayList<Rule>();
+        //this.rules = new ArrayList<Rule>();
     }
     
     public String getUrl() {
         return (this.url);
     }
-    
+    /*
     public ArrayList<Rule> getRules() {
         return (this.rules);
     }
-    /*
+    
     public void setConnection(HttpURLConnection con, Log log) throws IOException {
         try {
             con.setRequestMethod("GET");

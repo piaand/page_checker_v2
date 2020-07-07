@@ -31,19 +31,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PageCheck {
     
    private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
-   private static final String logFileName = "./pagecheck.log";
-
-   static{
-        LogConfiguration config = new LogConfiguration();
-        config.setLogFileName(logFileName);
-        config.setLogHandlers();
-    }
-    
+ 
     @Autowired
     PageReader reader;
     
+    @Autowired
+    LogConfiguration config;
+    
     @Scheduled(cron = "${cron.expression}", zone = "Europe/Helsinki")
     public void runPageCheck() {
+        config.setConfig();
         ArrayList<Page> pages = reader.readConfigFile();
         System.out.print(pages.size());
         //return the list urls and rules
