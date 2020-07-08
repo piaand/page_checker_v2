@@ -39,14 +39,14 @@ public class PageCheck {
     PageReader reader;
     
     @Autowired
-    Page request;
+    RequestHTTP fetcher;
     
     @Scheduled(cron = "${cron.expression}", zone = "Europe/Helsinki")
     public void runPageCheck() {
         config.setConfig();
         ArrayList<Page> pages = reader.readConfigFile();
         for (Page page : pages) {
-            page.performRequest();
+            fetcher.performRequest(page);
         }
         logger.info("Ended the requirement checking.");
     }

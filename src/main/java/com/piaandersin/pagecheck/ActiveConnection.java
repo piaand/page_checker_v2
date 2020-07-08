@@ -1,0 +1,76 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.piaandersin.pagecheck;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+/**
+ *
+ * @author piaandersin
+ */
+
+@Service
+@Data @NoArgsConstructor @AllArgsConstructor
+public class ActiveConnection {
+    
+    private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
+    
+    private URL url;
+    private HttpURLConnection connection;
+    
+    public void setConnection() throws IOException {
+        HttpURLConnection con = this.getConnection(); 
+        con.setRequestMethod("GET");
+        con.setRequestProperty("Content-Type", "plain/text");
+        con.setConnectTimeout(7000);
+        con.setReadTimeout(7000);
+    }
+    
+    public void openConnection() {
+        try {
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            this.setConnection(con);
+        } catch (IOException exception){
+            logger.log(Level.WARNING,"Error in opening the connection." );
+        }
+    }
+    
+    public void closeConnection() {
+        try {
+            HttpURLConnection con = this.getConnection();
+            con.disconnect();
+        } catch (Exception e){
+            logger.log(Level.WARNING,"Error in closing the connection." );
+        }
+    }
+    
+    public int getStatusCode() {
+        try {
+            HttpURLConnection con = this.getConnection();
+            int code = con.getResponseCode();
+            return (code);
+        } catch (IOException exception) {
+            logger.log(Level.WARNING,"Error in retreiving the statuscode." );
+            return (-1);
+        }
+    }
+    
+    public InputStreamReader openInputStream() throws IOException {
+        HttpURLConnection con = this.getConnection();
+        InputStreamReader reader = new InputStreamReader(con.getInputStream());
+        return (reader);
+    }
+}
