@@ -4,6 +4,7 @@ package com.piaandersin.pagecheck;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,6 +68,8 @@ public class RequestHTTP {
         if (status > 299) {
             logger.warning("URL " + httpcon.getUrl() + " returned not success status code " + status);
             return (null);
+        } else if (status == -1){
+            return (content);
         } else {
             content = readResponse();
             return (content);
@@ -81,18 +84,22 @@ public class RequestHTTP {
             httpcon.setConnection();
             content = getResponse();
             return (content);
-        } catch (Exception e){
-            String errorName = e.getClass().getSimpleName();
+        } catch (IOException exception){
+            logger.log(Level.WARNING,
+                    "Error: setting connection failed with " + httpcon.getUrl());
+            return (null);
+        } catch (Exception exception){
+            String errorName = exception.getClass().getSimpleName();
             logger.log(Level.WARNING,
                     "Error: making request failed with url " + httpcon.getUrl() + " due to " + errorName);
-            e.printStackTrace();
+            exception.printStackTrace();
             return (null);
         } finally {
             httpcon.closeConnection();
         }
     }
     
-    public void checkRules(Page page) throws Exception {
+    public void checkRules(Page page) {
         try {
             ArrayList<Rule> listRules = page.getRules();
             
@@ -112,13 +119,13 @@ public class RequestHTTP {
                 }
             }
         } catch (Exception e) {
-            throw e;
+            logger.warning("Error in checking the rules of " + httpcon.getUrl());
         }
     }
     
     public void performRequest(Page page) {
+        timer.setStart(System.nanoTime());
         try {
-            timer.setStart(System.nanoTime());
             URL url_address = new URL(page.getUrl());
             httpcon.setUrl(url_address);
             String response_content = this.doRequest();
@@ -128,11 +135,11 @@ public class RequestHTTP {
             } else {
                 this.checkRules(page);
             }
+        } catch (MalformedURLException exception){
+            logger.warning("Error forming URL for the fetcher: " + httpcon.getUrl());
+        } finally {
             timer.setStop(System.nanoTime());
             timePerformance();
-        } catch (Exception e) {
-            System.out.println("Caught exception in perform request");
-            System.out.println(e);
         }
     }
 }

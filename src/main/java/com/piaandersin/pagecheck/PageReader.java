@@ -5,8 +5,6 @@
  */
 package com.piaandersin.pagecheck;
 
-import java.util.Properties;
-import org.springframework.core.env.Environment;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,16 +13,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 /**

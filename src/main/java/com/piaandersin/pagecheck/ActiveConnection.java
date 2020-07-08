@@ -36,12 +36,13 @@ public class ActiveConnection {
         con.setReadTimeout(7000);
     }
     
-    public void openConnection() {
+    public void openConnection() throws IOException {
         try {
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             this.setConnection(con);
         } catch (IOException exception){
             logger.log(Level.WARNING,"Error in opening the connection." );
+            throw exception;
         }
     }
     
