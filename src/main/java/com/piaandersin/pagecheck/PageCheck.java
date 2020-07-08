@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.piaandersin.pagecheck;
 
 import java.io.IOException;
@@ -18,29 +13,27 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 /**
- * Class that operates the runPageCheck function repeatedly
- * according to the cron configuration in enviromental variables.
- * 
+ * Class that operates the runPageCheck function repeatedly according to the
+ * cron configuration in enviromental variables.
+ *
  * Static block runs ones and calls LogConfiguration file that reads the
  * configuration from logging.properties.
  */
-
 @Component
 public class PageCheck {
-    
-   private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
- 
+
+    private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
+
     @Autowired
     LogConfiguration config;
-   
+
     @Autowired
     PageReader reader;
-    
+
     @Autowired
     RequestHTTP fetcher;
-    
+
     @Scheduled(cron = "${cron.expression}", zone = "Europe/Helsinki")
     public void runPageCheck() {
         config.setConfig();
@@ -53,4 +46,3 @@ public class PageCheck {
     }
 
 }
-

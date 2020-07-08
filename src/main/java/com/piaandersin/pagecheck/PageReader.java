@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.piaandersin.pagecheck;
 
 import java.io.BufferedReader;
@@ -25,31 +20,32 @@ import org.springframework.beans.factory.annotation.Value;
 /**
  * Class extracts the url addresses and rules from pagecheck configuration file
  * (path of file in application properties).
- * 
- * Whole configuration file is read first before running the checks and comparing
- * them to requirements. In case the address is not a valid URL address, row is skipped
- * and a warning is logged to the file.
+ *
+ * Whole configuration file is read first before running the checks and
+ * comparing them to requirements. In case the address is not a valid URL
+ * address, row is skipped and a warning is logged to the file.
  */
-
 @Component
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageReader {
+
     private static final Logger logger = Logger.getLogger(PageCheck.class.getName());
-    
-    @Value( "${pagecheck.configuration}" )
+
+    @Value("${pagecheck.configuration}")
     private String configFileName;
     private ArrayList<Page> listPages = new ArrayList<Page>();
-    
-    public boolean isValidURL(String url) throws MalformedURLException, URISyntaxException
-    {
-        new URL(url).toURI(); 
-        return true; 
+
+    public boolean isValidURL(String url) throws MalformedURLException, URISyntaxException {
+        new URL(url).toURI();
+        return true;
     }
-    
+
     public String extractURL(String line) {
         char delimiter = ';';
         String url;
-        
+
         try {
             int index = line.indexOf(delimiter);
             if (index != -1) {
@@ -59,11 +55,11 @@ public class PageReader {
             }
             isValidURL(url);
             return (url);
-        } catch (MalformedURLException|URISyntaxException exception) {
+        } catch (MalformedURLException | URISyntaxException exception) {
             throw new java.lang.RuntimeException("Error: line has no valid URL address.");
         }
     }
-    
+
     public Page extractRequest(String line, int line_nb) {
         try {
             String url = extractURL(line);
@@ -71,59 +67,58 @@ public class PageReader {
             request.setUrl(url);
             return (request);
         } catch (RuntimeException expection) {
-             logger.log(Level.WARNING,
+            logger.log(Level.WARNING,
                     "Exception met when reading address from page check"
-                            + " configuration file. Line nb " + line_nb + " skipped.");
+                    + " configuration file. Line nb " + line_nb + " skipped.");
             return (null);
         }
-     }
-    
+    }
+
     private void addToListPages(String line, int line_nb) {
-    
+
         Page request = extractRequest(line, line_nb);
         if (request != null) {
             listPages.add(request);
         }
     }
-    
+
     private void iterateConfigFile(BufferedReader readPages) {
         try {
             String line;
             int i = 0;
-            while((line = readPages.readLine()) != null) {
-                addToListPages(line, i);             
+            while ((line = readPages.readLine()) != null) {
+                addToListPages(line, i);
                 i++;
             }
         } catch (IOException exception) {
             logger.log(Level.SEVERE, "Exception met when reading page check config file", exception);
-        } 
+        }
     }
-    
-    public BufferedReader connectToConfigfile(String fileName){
+
+    public BufferedReader connectToConfigfile(String fileName) {
         try {
             File file = new File(fileName);
             FileReader fileReader = new FileReader(file);
             BufferedReader buff = new BufferedReader(fileReader);
             logger.info("Started reading from the file: " + fileName);
-            return(buff);
+            return (buff);
         } catch (FileNotFoundException | NullPointerException exception) {
-            logger.log(Level.SEVERE, "Configuration file error in loading page checker configuration",exception);
+            logger.log(Level.SEVERE, "Configuration file error in loading page checker configuration", exception);
             return (null);
         }
     }
-    
+
     public ArrayList<Page> readConfigFile() {
         try {
             String fileName = this.getConfigFileName();
             BufferedReader pageCheckContent = connectToConfigfile(fileName);
-            if(pageCheckContent == null) {
-                return (this.getListPages());
-            } else {
+            if (pageCheckContent != null) {
                 iterateConfigFile(pageCheckContent);
+                pageCheckContent.close();
             }
-            pageCheckContent.close();
-        } catch (IOException exception){
-            logger.log(Level.SEVERE, "Error reading paeg check configuration file",exception);
+            return (this.getListPages());
+        } catch (IOException exception) {
+            logger.log(Level.SEVERE, "Error reading paeg check configuration file", exception);
         } finally {
             return (listPages);
         }

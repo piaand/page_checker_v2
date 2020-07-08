@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
  * be validated against the page content (one-to-many relationship).
  * 
  * Checked variable tells the status in checking process (true = all rules are reviewed),
- * not weather all rules were "successfull".
+ * not whether all rules were "successfull" or "passed".
  */
 
 @Data @NoArgsConstructor @AllArgsConstructor

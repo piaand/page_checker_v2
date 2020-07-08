@@ -22,29 +22,30 @@ import org.springframework.stereotype.Component;
  *
  * In any errors when reading log file or log configurations, systems exits.
  */
-
 @Component
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class LogConfiguration {
- 
+
     private static final LogManager LOGMANAGER = LogManager.getLogManager();
     private static final Logger LOGGER = Logger.getLogger(PageCheck.class.getName());
-    
-    @Value( "${logging.path}" )
+
+    @Value("${logging.path}")
     private String configFileName;
-    
+
     public void setConfig() {
         try {
-            FileInputStream configFile =  new FileInputStream(configFileName);
+            FileInputStream configFile = new FileInputStream(configFileName);
             LOGMANAGER.getLogManager().readConfiguration(configFile);
             LOGGER.log(Level.INFO, "Read the logger configurations");
         } catch (IOException | NullPointerException exception) {
-            LOGGER.log(Level.SEVERE, "Error in loading configuration",exception);
+            LOGGER.log(Level.SEVERE, "Error in loading configuration", exception);
             System.exit(1);
         } catch (Exception exception) {
-            LOGGER.log(Level.SEVERE, "Unexpected error in loading configuration",exception);
+            LOGGER.log(Level.SEVERE, "Unexpected error in loading configuration", exception);
             System.exit(1);
         }
     }
-    
+
 }

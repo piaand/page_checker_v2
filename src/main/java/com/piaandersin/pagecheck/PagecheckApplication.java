@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class PagecheckApplication {
 
-	public static void main(String[] args) {
-                SpringApplication.run(PagecheckApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PagecheckApplication.class, args);
+    }
 
 }
