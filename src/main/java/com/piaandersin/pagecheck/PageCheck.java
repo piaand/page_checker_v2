@@ -47,7 +47,9 @@ public class PageCheck {
         ArrayList<Page> pages = reader.readConfigFile();
         for (Page page : pages) {
             fetcher.performRequest(page);
+            pages.remove(page);
         }
+        reader.setListPages(new ArrayList<Page>());
         logger.info("Ended the requirement checking.");
     }
 

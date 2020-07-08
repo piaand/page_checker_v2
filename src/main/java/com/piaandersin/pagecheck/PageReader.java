@@ -117,11 +117,11 @@ public class PageReader {
             String fileName = this.getConfigFileName();
             BufferedReader pageCheckContent = connectToConfigfile(fileName);
             if(pageCheckContent == null) {
-                return (listPages);
+                return (this.getListPages());
             } else {
                 iterateConfigFile(pageCheckContent);
-                pageCheckContent.close();
             }
+            pageCheckContent.close();
         } catch (IOException exception){
             logger.log(Level.SEVERE, "Error reading paeg check configuration file",exception);
         } finally {
