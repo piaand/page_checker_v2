@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Class provides a simple timer that keeps track of time elapsed in performing a
- * task.
+ * task in milliseconds.
  * 
  * Throws Runtime in case start time is "later" than stop time.
  */
@@ -27,17 +27,17 @@ public class Timer {
     private Long start = 0L;
     private Long stop = 0L;
     
-    public void logPerformanceTime(Long seconds) {
-        logger.info("It took " + seconds + " seconds to perform the request.");
+    public void logPerformanceTime(double seconds) {
+        logger.info("It took " + seconds + " milliseconds to perform the request.");
     }
     
-    public long countDurationSeconds(Long start_nano, Long stop_nano) throws RuntimeException {
+    public double countDurationMilliSeconds(Long start_nano, Long stop_nano) throws RuntimeException {
         long nanosDuration = stop_nano - start_nano;
         if (nanosDuration < 0) {
             throw new RuntimeException("Counted time should not be negative");
         }
-        long seconds = TimeUnit.SECONDS.convert(nanosDuration, TimeUnit.NANOSECONDS);
-        return (seconds);
+        double milliseconds = TimeUnit.MILLISECONDS.convert(nanosDuration, TimeUnit.NANOSECONDS);
+        return (milliseconds);
     }
     
 }

@@ -38,8 +38,8 @@ public class RequestHTTP {
     
     public void timePerformance() {
         try {
-            Long seconds = timer.countDurationSeconds(timer.getStart(), timer.getStop());
-            timer.logPerformanceTime(seconds);
+            double milliseconds = timer.countDurationMilliSeconds(timer.getStart(), timer.getStop());
+            timer.logPerformanceTime(milliseconds);
         } catch (RuntimeException exception) {
             logger.log(Level.WARNING,"Measuring time for request performance met error." );
         }
