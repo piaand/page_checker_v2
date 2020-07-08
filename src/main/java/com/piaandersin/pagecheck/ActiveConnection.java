@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.piaandersin.pagecheck;
 
 import java.io.IOException;
@@ -15,14 +11,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
 
 /**
- *
- * @author piaandersin
+ * Class that makes sure connection to given URL is handled correctly, example
+ * opening and closing the connection.
+ * 
  */
 
-@Service
+@Component
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ActiveConnection {
     

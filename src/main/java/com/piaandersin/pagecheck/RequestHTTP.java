@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.piaandersin.pagecheck;
 
 import java.io.BufferedReader;
@@ -18,8 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- *
- * @author piaandersin
+ * Class represents the process of fetching the content given by Page url and checking
+ * it against the rules Page has while timing the process.
+ * 
+ * 0. Start timer
+ * 1. Fetch the response, check status code
+ * 2. Read the response content
+ * 3. Compare content to rules (not yet implemented)
+ * 4. Stop timers
  */
 
 @Component
@@ -30,9 +32,12 @@ public class RequestHTTP {
     @Autowired
     ActiveConnection httpcon;
     
-    public void timePerformance(Timer timer, Long start_nano, Long stop_nano) {
+    @Autowired
+    Timer timer;
+    
+    public void timePerformance() {
         try {
-            Long seconds = timer.countDurationSeconds(start_nano, stop_nano);
+            Long seconds = timer.countDurationSeconds(timer.getStart(), timer.getStop());
             timer.logPerformanceTime(seconds);
         } catch (RuntimeException exception) {
             logger.log(Level.WARNING,"Measuring time for request performance met error." );
@@ -87,7 +92,7 @@ public class RequestHTTP {
         }
     }
     
-    public void checkRules(Page page, String content) throws Exception {
+    public void checkRules(Page page) throws Exception {
         try {
             ArrayList<Rule> listRules = page.getRules();
             
@@ -113,19 +118,18 @@ public class RequestHTTP {
     
     public void performRequest(Page page) {
         try {
-            Timer timer = new Timer();
-            Long start = System.nanoTime();
-            timer.setStart(start);
+            timer.setStart(System.nanoTime());
             URL url_address = new URL(page.getUrl());
             httpcon.setUrl(url_address);
             String response_content = this.doRequest();
+            page.setContent(response_content);
             if (response_content == null) {
                 //move on
             } else {
-                this.checkRules(page, response_content);
+                this.checkRules(page);
             }
             timer.setStop(System.nanoTime());
-            timePerformance(timer, timer.getStart(), timer.getStop());
+            timePerformance();
         } catch (Exception e) {
             System.out.println("Caught exception in perform request");
             System.out.println(e);

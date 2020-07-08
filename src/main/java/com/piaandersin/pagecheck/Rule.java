@@ -1,14 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.piaandersin.pagecheck;
 import org.springframework.stereotype.Component;
 
 /**
- *
- * @author piaandersin
+ * This is a template for the Class of Rules which give the base for checking
+ * content against its requirements
+ * 
+ * An example of a rule could be that a given character array must appear in the
+ * rule.
  */
 
 @Component

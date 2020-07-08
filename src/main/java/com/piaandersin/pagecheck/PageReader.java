@@ -117,13 +117,6 @@ public class PageReader {
         }
     }
     
-    /*
-    //Below is for development testing
-    public void reportCurrentTime() {
-            String dateString = dateFormat.format(new Date());
-            logger.info("The time is now " + dateString);         
-    }*/
-    
     public ArrayList<Page> readConfigFile() {
         try {
             String fileName = this.getConfigFileName();
